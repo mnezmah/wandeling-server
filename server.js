@@ -1,17 +1,17 @@
 const express = require("express");
-const graphqlHTTP = require("express-graphql");
+const { graphqlHTTP } = require("express-graphql");
 const wandelingSchema = require("./schema");
 
 const app = express();
 
 app.use(
-    "./graphql",
+    "/graphql",
     graphqlHTTP({
         schema: wandelingSchema,
-        graphql: true,
+        graphiql: true,
     })
 );
 
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () => `Server started on port ${PORT}`);
+app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
