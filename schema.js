@@ -1,33 +1,40 @@
 import {
     GraphQLObjectType,
-    graphString,
-    graphQLFloat,
+    GraphQLString,
+    GraphQLFloat,
     GraphQLList,
     GraphQLSchema,
+    GraphQLNonNull,
 } from "graphql";
 import Db from "./db";
 
 const User = new GraphQLObjectType({
     name: "User",
     description: "This represent an User",
-    fields: () => {
+    fields() {
         return {
             id: {
-                type: graphQLString,
+                type: GraphQLString,
                 resolve(user) {
                     return user.id;
                 },
             },
             name: {
-                type: graphString,
+                type: GraphQLString,
                 resolve(user) {
                     return user.name;
                 },
             },
             password: {
-                type: graphString,
+                type: GraphQLString,
                 resolve(user) {
                     return user.password;
+                },
+            },
+            markers: {
+                type: new GraphQLList(Marker),
+                resolve(user) {
+                    return user.getMarkers();
                 },
             },
         };
@@ -37,53 +44,95 @@ const User = new GraphQLObjectType({
 const Marker = new GraphQLObjectType({
     name: "Marker",
     description: "This represent an Google map marker",
-    fields: () => {
-        return {
-            id: {
-                type: graphQLString,
-                resolve(marker) {
-                    return marker.id;
-                },
+    fields: () => ({
+        id: {
+            type: GraphQLString,
+            resolve(marker) {
+                return marker.id;
             },
-            title: {
-                type: graphString,
-                resolve(marker) {
-                    return marker.title;
-                },
+        },
+        title: {
+            type: GraphQLString,
+            resolve(marker) {
+                return marker.title;
             },
-            lat: {
-                type: graphQLFloat,
-                resolve(marker) {
-                    return marker.lat;
-                },
+        },
+        lat: {
+            type: GraphQLFloat,
+            resolve(marker) {
+                return marker.lat;
             },
-            lon: {
-                type: graphQLFloat,
-                resolve(marker) {
-                    return marker.lon;
-                },
+        },
+        lon: {
+            type: GraphQLFloat,
+            resolve(marker) {
+                return marker.lon;
             },
-        };
-    },
+        },
+        user: {
+            type: User,
+            resolve(marker) {
+                return marker.getUser();
+            },
+        },
+    }),
 });
 
-const RootQuery = new GraphQLObjectType({
+const Query = new GraphQLObjectType({
     name: "Query",
     description: "This is a root query",
-    fields: () => {
+    fields: () => ({
+        users: {
+            type: new GraphQLList(User),
+            args: {
+                id: {
+                    type: GraphQLString,
+                },
+                name: {
+                    type: GraphQLString,
+                },
+            },
+            resolve(root, args) {
+                return Db.models.user.findAll({ where: args });
+            },
+        },
+        markers: {
+            type: new GraphQLList(Marker),
+            args: {
+                id: {
+                    type: GraphQLString,
+                },
+                title: {
+                    type: GraphQLString,
+                },
+            },
+            resolve(root, args) {
+                return Db.models.marker.findAll({ where: args });
+            },
+        },
+    }),
+});
+
+const Mutation = new GraphQLObjectType({
+    name: "Mutations",
+    description: "functiuons to create user or marker",
+    fields() {
         return {
-            users: {
-                type: new GraphQLList(User),
+            addUser: {
+                type: User,
                 args: {
-                    id: {
-                        type: graphQLString,
-                    },
                     name: {
-                        type: graphQLString,
+                        type: new GraphQLNonNull(GraphQLString),
+                    },
+                    password: {
+                        type: new GraphQLNonNull(GraphQLString),
                     },
                 },
-                resolve(root, args) {
-                    return Db.models.user.findAll({ where: args });
+                resolve(source, args) {
+                    return Db.models.user.create({
+                        name: args.name,
+                        password: args.password,
+                    });
                 },
             },
         };
@@ -92,6 +141,7 @@ const RootQuery = new GraphQLObjectType({
 
 const Schema = new GraphQLSchema({
     query: Query,
+    mutation: Mutation,
 });
 
 export default Schema;
