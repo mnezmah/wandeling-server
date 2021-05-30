@@ -96,6 +96,17 @@ const Query = new GraphQLObjectType({
                 return Db.models.user.findAll({ where: args });
             },
         },
+        user: {
+            type: User,
+            args: {
+                id: {
+                    type: GraphQLString,
+                },
+            },
+            resolve(root, args) {
+                return Db.models.user.findOne({ where: args });
+            },
+        },
         markers: {
             type: new GraphQLList(Marker),
             args: {
