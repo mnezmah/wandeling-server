@@ -36,6 +36,7 @@
         "faker": "^5.5.3",
         "graphiql": "^1.4.1",
         "graphql": "^15.5.0",
+        "jsonwebtoken": "^8.5.1",
         "lodash": "^4.17.21",
         "pg": "^8.6.0",
         "pg-hstore": "^2.3.3",

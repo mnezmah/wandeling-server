@@ -41,6 +41,27 @@ const User = new GraphQLObjectType({
     },
 });
 
+const AuthData = new GraphQLObjectType({
+    name: "Auth",
+    description: "endpoint for authentication",
+    fields() {
+        return {
+            id: {
+                type: GraphQLString,
+                resolve(user) {
+                    return user.id;
+                },
+            },
+            token: {
+                type: GraphQLString,
+                resolve(user) {
+                    return user.id;
+                },
+            },
+        };
+    },
+});
+
 const Marker = new GraphQLObjectType({
     name: "Marker",
     description: "This represent an Google map marker",
@@ -121,12 +142,17 @@ const Query = new GraphQLObjectType({
                 return Db.models.marker.findAll({ where: args });
             },
         },
+        login: {
+            name: {
+                type: GraphQLString,
+            },
+        },
     }),
 });
 
 const Mutation = new GraphQLObjectType({
     name: "Mutations",
-    description: "functiuons to create user or marker",
+    description: "functions to create user or marker",
     fields() {
         return {
             addUser: {
